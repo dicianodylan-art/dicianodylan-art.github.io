@@ -11,8 +11,8 @@
 (()=>{'use strict';
 const canvas=document.querySelector('#game'), scene=new THREE.Scene();scene.background=new THREE.Color(0x070a0d);scene.fog=new THREE.FogExp2(0x070a0d,.035);
 const camera=new THREE.PerspectiveCamera(74,innerWidth/innerHeight,.05,120); camera.position.set(0,1.66,2.5);camera.rotation.order='YXZ';
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
-const mat=(c,r=.8,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});const floorMat=mat(0x282725,.88),wallMat=mat(0x45433e), darkMat=mat(0x101317), metal=mat(0x34383b,.35,.72), wood=mat(0x47372a),tile=mat(0x56544f,.72), glass=new THREE.MeshPhysicalMaterial({color:0x16232b,roughness:.13,metalness:.2,transparent:true,opacity:.28});
+const renderer=new THREE.WebGLRenderer({canvas,antialias:false,alpha:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<760?.38:.72));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.NoToneMapping;
+const mat=(c,r=.8,m=0)=>new THREE.MeshLambertMaterial({color:c});const floorMat=mat(0x282725,.88),wallMat=mat(0x45433e), darkMat=mat(0x101317), metal=mat(0x34383b,.35,.72), wood=mat(0x47372a),tile=mat(0x56544f,.72), glass=new THREE.MeshPhysicalMaterial({color:0x16232b,roughness:.13,metalness:.2,transparent:true,opacity:.28});
 function box(x,y,z,w,h,d,material,cast=true,receive=true){let o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.castShadow=cast;o.receiveShadow=receive;scene.add(o);return o}function plane(x,y,z,w,h,material,rx=0){let o=new THREE.Mesh(new THREE.PlaneGeometry(w,h),material);o.position.set(x,y,z);o.rotation.x=rx;o.receiveShadow=true;scene.add(o);return o}
 // building interior
 box(0,-.15,0,14,.3,12,floorMat);box(0,3,-6,14,6,.25,wallMat);box(-7,3,0,.25,6,12,wallMat);box(7,3,0,.25,6,12,wallMat);box(0,5.8,0,14,.25,12,darkMat);
@@ -31,13 +31,13 @@ let radio=box(1.45,2.05,-2.45,.62,.27,.42,mat(0x211d18,.6));let radioLight=box(1
 let fuse=box(6.76,2.3,-4.5,.12,1.2,.85,mat(0x49463c));box(6.67,2.35,-4.5,.06,.85,.55,mat(0x1b1d1b));let lever=box(6.6,2.1,-4.38,.12,.42,.12,mat(0x9c4c37));
 let backDoor=box(0,1.45,-5.82,1.5,2.9,.18,wood);box(.68,1.4,-5.68,.07,.12,.07,metal);
 // wall lights and ceiling lights
-const ambient=new THREE.HemisphereLight(0x6a7886,0x201c18,.55);scene.add(ambient);let mainLight=new THREE.PointLight(0xc3b999,31,15,1.7);mainLight.position.set(0,4.7,-1.6);mainLight.castShadow=true;mainLight.shadow.mapSize.set(1024,1024);scene.add(mainLight);let sideLight=new THREE.PointLight(0x5c7480,12,9,2);sideLight.position.set(-5.5,3.8,1);scene.add(sideLight);
-for(let x of [-4,0,4]){box(x,5.64,-1,.9,.08,2.4,mat(0xd6d0bd,.4,0));let l=new THREE.PointLight(0xe1d6bd,14,7,2);l.position.set(x,5.35,-1);l.castShadow=true;scene.add(l)}
+const ambient=new THREE.HemisphereLight(0x6a7886,0x201c18,.8);scene.add(ambient);let mainLight=new THREE.PointLight(0xc3b999,18,15,2);mainLight.position.set(0,4.7,-1.6);scene.add(mainLight);let sideLight=new THREE.PointLight(0x5c7480,6,9,2);sideLight.position.set(-5.5,3.8,1);scene.add(sideLight);
+for(let x of [-4,0,4]){box(x,5.64,-1,.9,.08,2.4,mat(0xd6d0bd,.4,0))}
 // exterior asphalt and gas station canopy seen through windows
-box(0,-.34,10,32,.18,26,mat(0x11171b,.95));for(let x of [-4,0,4])box(x,4.2,10,.18,8,.18,metal);box(0,8.2,10,12,.28,5,mat(0x252a2d,.3,.28));for(let x of [-3,0,3]){box(x,8.02,10,.9,.08,3.8,mat(0xd2c5a5,.3));let l=new THREE.PointLight(0xb0ad9f,8,7,2);l.position.set(x,7.6,10);scene.add(l)}
+box(0,-.34,10,32,.18,26,mat(0x11171b,.95));for(let x of [-4,0,4])box(x,4.2,10,.18,8,.18,metal);box(0,8.2,10,12,.28,5,mat(0x252a2d,.3,.28));for(let x of [-3,0,3])box(x,8.02,10,.9,.08,3.8,mat(0xd2c5a5,.3))
 for(let x of [-4,0,4]){box(x,.85,12,.8,1.7,.9,mat(0x534840));box(x,.9,11.5,.64,1.35,.06,mat(0x272a2a));box(x,.42,11.42,.25,.35,.1,mat(0x6e9b99,.2));box(x,1.45,11.43,.35,.2,.1,mat(0x981f18,.2));}
 // rain streaks outside, lightly animated
-let drops=[];for(let i=0;i<260;i++){let o=new THREE.Mesh(new THREE.BoxGeometry(.012,.28,.012),new THREE.MeshBasicMaterial({color:0x71818a,transparent:true,opacity:.35}));o.position.set((Math.random()-.5)*24,Math.random()*9,7+Math.random()*21);scene.add(o);drops.push(o)}
+const drops=[];
 // mysterious visitor silhouette, initially hidden outside window
 let visitor=new THREE.Group();let coat=new THREE.Mesh(new THREE.CapsuleGeometry(.33,1.05,4,8),mat(0x050607,.99));coat.position.y=1.0;visitor.add(coat);let head=new THREE.Mesh(new THREE.SphereGeometry(.23,10,8),mat(0x090a0c));head.position.y=1.85;visitor.add(head);visitor.position.set(0,0,9);visitor.visible=false;scene.add(visitor);
 // flashlight spot
@@ -62,7 +62,7 @@ function update(dt){if(!state.started||state.ended)return;state.nightSeconds+=dt
 // movement
 let f=(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0)-move.y, side=(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0)+move.x;let len=Math.hypot(f,side);if(len>1){f/=len;side/=len}let sp=state.hide?1.3:2.25, dx=(Math.sin(yaw)*f+Math.cos(yaw)*side)*sp*dt,dz=(-Math.cos(yaw)*f+Math.sin(yaw)*side)*sp*dt;let np=camera.position.clone();np.x+=dx;if(!collide(np))camera.position.x=np.x;np=camera.position.clone();np.z+=dz;if(!collide(np))camera.position.z=np.z;camera.position.y=state.hide?1.05:1.66;
 if(state.flashOn){state.battery=Math.max(0,state.battery-dt*1.35);if(state.battery===0)toggleLight()}aim();
-for(let d of drops){d.position.y-=dt*10;if(d.position.y<0)d.position.y=9+Math.random()*3}
+
 // event progression
 let t=state.nightSeconds;if(t>25&&!state.radio){document.querySelector('#objective').textContent='La radio no debería estar encendida.'}else if(t>60&&!state.hasFuse&&!state.power)document.querySelector('#objective').textContent='Busca el fusible de repuesto y ve a la caja.';else document.querySelector('#objective').textContent='Aguanta hasta las 06:00';
 if(t>18&&!state.radio&&!state.alarm){state.alarm=true;show('La radio del mostrador se enciende sola.');snd('radio');}
@@ -86,5 +86,5 @@ window.addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='KeyE'||e.co
 canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'&&state.started){touchLook={x:e.clientX,y:e.clientY,id:e.pointerId};canvas.setPointerCapture(e.pointerId)}});canvas.addEventListener('pointermove',e=>{if(touchLook&&e.pointerId===touchLook.id){let dx=e.clientX-touchLook.x,dy=e.clientY-touchLook.y;touchLook.x=e.clientX;touchLook.y=e.clientY;yaw-=dx*.006;pitch=Math.max(-1.15,Math.min(1.15,pitch-dy*.006));aim()}});canvas.addEventListener('pointerup',e=>{if(touchLook&&e.pointerId===touchLook.id){if(Math.abs(e.clientX-touchLook.x)<4&&Math.abs(e.clientY-touchLook.y)<4)interact();touchLook=null}});
 const joy=document.querySelector('#joy'),nub=document.querySelector('#nub');let joyid=null;joy.addEventListener('pointerdown',e=>{joyid=e.pointerId;joy.setPointerCapture(joyid);joyMove(e)});joy.addEventListener('pointermove',e=>{if(e.pointerId===joyid)joyMove(e)});joy.addEventListener('pointerup',()=>{joyid=null;move={x:0,y:0};nub.style.transform='translate(0,0)'});function joyMove(e){let r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,l=Math.hypot(dx,dy),m=35;if(l>m){dx*=m/l;dy*=m/l}move={x:dx/m,y:dy/m};nub.style.transform=`translate(${dx}px,${dy}px)`}
 document.querySelector('#interactBtn').onclick=interact;document.querySelector('#lightBtn').onclick=toggleLight;document.querySelector('#hideBtn').onclick=()=>{state.hide=!state.hide;show(state.hide?'Te agachaste detrás del mostrador.':'Te pusiste de pie.')};
-let clock=new THREE.Clock();function loop(){requestAnimationFrame(loop);let dt=Math.min(clock.getDelta(),.05);update(dt);renderer.render(scene,camera)}loop();
+let clock=new THREE.Clock(),frameWait=0;function loop(){requestAnimationFrame(loop);let dt=Math.min(clock.getDelta(),.08);frameWait+=dt;if(frameWait<1/30)return;dt=frameWait;frameWait=0;update(dt);renderer.render(scene,camera)}loop();
 })();</script></body></html>
