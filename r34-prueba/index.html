@@ -24,6 +24,6 @@ function loop(){requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.
  let fx=Math.sin(carYaw),fz=Math.cos(carYaw);let camTarget=new THREE.Vector3(car.position.x-fx*10,car.position.y+5.1,car.position.z-fz*10);camera.position.lerp(camTarget,1-Math.exp(-5*dt));let look=new THREE.Vector3(car.position.x+fx*6,car.position.y+1.1,car.position.z+fz*6);camera.lookAt(look);
  let km=Math.round(Math.abs(speed)*3.6);speedEl.textContent=km;gearEl.textContent=speed<-.1?'REVERSA':speed<.1?'LISTO':km<25?'1.ª MARCHA':km<55?'2.ª MARCHA':km<90?'3.ª MARCHA':km<125?'4.ª MARCHA':'5.ª MARCHA';if(Math.abs(car.position.x)>rx+50||Math.abs(car.position.z)>rz+50)setStatus('SIGUE LA PISTA O GIRA PARA VOLVER');else setStatus('MOTOR LISTO · PISTA LIBRE');}
  renderer.render(scene,camera)}
-try{if(!window.THREE||!THREE.GLTFLoader)throw Error('No se pudo iniciar el visor 3D');start()}catch(e){loading.classList.add('err');loading.textContent='Error al iniciar el juego 3D. Recarga esta página.';setStatus('ERROR DEL VISOR',true);console.error(e)}
+try{if(!window.THREE||!THREE.GLTFLoader)throw Error('No se pudo iniciar el visor 3D');start()}catch(e){loading.classList.add('err');loading.textContent='Error al iniciar: '+(e&&e.message?e.message:String(e));setStatus('ERROR DEL VISOR',true);console.error(e)}
 })();
 </script></main></body></html>
